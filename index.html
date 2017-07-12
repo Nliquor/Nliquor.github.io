@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../vue1026.js"></script>
+    <style>
+        #tb{
+            width: 800px;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        #tb th{
+            background-color: #0094ff;
+            color: white;
+            font-size: 16px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
+        #tb td{
+			padding: 5px;
+			text-align: center;
+			border: 1px solid black;
+		}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="id">
+        <input type="text" v-model="pname">
+
+        <input type="text" placeholder="请输入筛选内容" v-model="sname">
+
+        <button type="" @click="addData">添加品牌</button>
+            <table id="tb">
+           <tr>
+				<th>编号</th>
+				<th>名称</th>
+				<th>创建时间</th>
+				<th>操作</th>
+			</tr>
+            <tr v-if="list.length==0">
+                <td colspan="4">当前列表无数据</td>
+            </tr>
+            <tr v-for="item in list | filterBy sname in 'name'">
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.ctime | detefmt yyyy-mm-dd HH:mm:ss}}</td>
+                <td>
+                <a href="javascript:;" @click="delData(item.id)">删除</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        Vue.filter('detefmt',function(input,formatstring){
+           var res ='';
+					var year = input.getFullYear();
+					var month = input.getMonth();
+					var day = input.getDate();
+                    if(formatstring=="yyyy-mm-dd"){
+                        res=year+'-'+month+'-'+day;
+                    }else{
+                        res=year+'-'+month+'-'+day+' 03:09:18';
+                    }
+					
+					return res;
+        })
+         new Vue({
+            el:'#app',
+            data:{
+                list:[ 
+                    
+                    {id:1,name:'奔驰',ctime:new Date},
+                    {id:2,name:'宝马',ctime:new Date},
+                    {id:3,name:'奔奔',ctime:new Date},
+                    {id:4,name:'法拉利',ctime:new Date}
+                    
+                ],
+                 id:0,
+                 pname:'',
+                 sname:''
+            },
+            methods:{
+                addData:function(){
+                    //包装成list要求的对象
+                    var p = {id:this.id,name:this.pname,ctime:new Date()};
+                    //将p追加到list 数组中
+                    this.list.push(p)
+                    //清空页面上文本框中的数据
+                    this.id=0
+                    this.pname=''
+                },
+                delData:function(id){
+                    //提醒用户是否要删除数据
+                    if(!confirm('是否要删除数据?')){
+                        //当用户点击了取消按钮的时候 应该阻断这个方法后面的代码的继续执行
+                        return
+                    }
+                    //调用list.findIndex()
+                    //方法根据传入的id湖区得到整合各要删除数据的索引值
+                    var index =this.list.findIndex(function(item){
+                        return item.id==id
+                    })
+                    //调用list.splice(删除的索引,删除的元素的个数)
+                     this.list.splice(index,1);
+                }
+            }
+        })
+    </script>
+</body>
+</html>
