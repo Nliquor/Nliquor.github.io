@@ -1,0 +1,116 @@
+	var order_share_id
+        var title
+        var desc
+        var link
+        var imgUrl
+        // 分享订单 - 返回分享内容 -url动态生产
+        wx.config({
+            debug: false,
+            appId: '{$signPackage["appId"]}',
+            timestamp: '{$signPackage["timestamp"]}',
+            nonceStr: '{$signPackage["nonceStr"]}',
+            signature: '{$signPackage["signature"]}',
+            jsApiList: [
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage',
+            ]
+        });
+        $scope.friendshare=function(){
+            $(".shadow-share").fadeIn();
+            jQuery.ajax({
+                url: shareurl+"/member__order_share",
+                data:{order_ids:flagId,session:session},
+                type:"POST",
+                dataType:'json',
+                anync:true,
+                success:function(data){
+                    title=data.re_result.share_title // 商品名
+                    desc=data.re_result.share_desc // 店铺名
+                    link=data.re_result.share_url // 商品购买地址
+                    imgUrl=data.re_result.share_img // 分享的图标
+                    var totalVal = $scope.total_a
+                       // 微信JSSDK开发
+                       
+                       wx.ready(function () {
+                        // 分享给朋友
+                        wx.onMenuShareAppMessage({
+                                    title: title, // 商品名
+                                    desc:desc, // 店铺名
+                                    link: link, // 商品购买地址
+                                    imgUrl:imgUrl, // 分享的图标
+                                    trigger: function (res) {
+                                  
+                                    },
+                                    success: function (res) {
+                                        $(".shadow-share").fadeOut();
+                                        jQuery.ajax({
+                                            url: shareurl+"/member__order_share_money",
+                                            data:{order_ids:flagId,session:session},
+                                            type:"POST",
+                                            dataType:'json',
+                                            anync:true,
+                                            success:function(data){
+                                                $('.pickone_money').text('-'+data.re_result.less_price)
+                                                $scope.total_a=(totalVal-0-data.re_result.less_price).toFixed(2);
+                                                $scope.$apply();
+                                            }
+                                        })						
+                                        console.log(res)
+                                        $('.img_icon_money_isshow').css('display','block')
+                                        $('.shareRandomization').css('display','none')
+                                        $('.red').css('backgroundColor','#F34A4A')
+                                        $('.red').css('color','#fff')
+        
+            
+                                    },
+                                    cancel: function (res) {
+                                        console.log(res)
+                                    } ,
+                                    fail: function (res) {
+                                        alert(res)
+                                    }
+                                });
+                                // 分享到朋友圈
+                                wx.onMenuShareTimeline({
+                                            title: title, // 商品名
+                                            link:link, // 商品购买地址
+                                            imgUrl: imgUrl, // 分享的图标
+                                            trigger: function (res) {
+                                            },
+                                            success: function (res) {
+                                                $(".shadow-share").fadeOut();
+                                                jQuery.ajax({
+                                                    url: shareurl+"/member__order_share_money",
+                                                    data:{order_ids:flagId,session:session},
+                                                    type:"POST",
+                                                    dataType:'json',
+                                                    anync:true,
+                                                    success:function(data){
+                                                        $('.pickone_money').text('-'+data.re_result.less_price)
+                                                        $scope.total_a=(totalVal-0-data.re_result.less_price).toFixed(2);
+                                                        $scope.$apply();
+        
+                                                    }
+                                                });
+                                                console.log(res);
+                                                $('.img_icon_money_isshow').css('display','block');
+                                                $('.shareRandomization').css('display','none');
+                                                $('.red').css('backgroundColor','#F34A4A');
+                                                $('.red').css('color','#fff')
+                                            },
+                                            cancel: function (res) {
+                                                
+                                            } ,
+                                            fail: function (res) {
+                                                alert(res)
+                                            }
+                                        });
+                        });
+        
+                            
+        
+        
+                }
+            })
+           
+        }
